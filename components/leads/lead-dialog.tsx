@@ -3,56 +3,30 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-
-const formSchema = z.object({
-  businessName: z.string().min(2).max(100),
-  contactName: z.string().min(2).max(100),
-  email: z.string().email(),
-  phone: z.string().min(10),
-  status: z.enum(["NEW", "CONTACTED", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"]),
-  followUpDate: z.string(),
-  notes: z.string().optional(),
-})
+import { useRouter } from "next/navigation"
+import { leadFormSchema } from "@/lib/validations/lead"
+import type { z } from "zod"
 
 interface LeadDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSuccess?: () => void
+  onLeadCreated?: () => void
 }
 
-export function LeadDialog({ open, onOpenChange, onSuccess }: LeadDialogProps) {
+export function LeadDialog({ open, onOpenChange, onLeadCreated }: LeadDialogProps) {
   const { toast } = useToast()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof leadFormSchema>>({
+    resolver: zodResolver(leadFormSchema),
     defaultValues: {
       businessName: "",
       contactName: "",
@@ -64,26 +38,32 @@ export function LeadDialog({ open, onOpenChange, onSuccess }: LeadDialogProps) {
     },
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof leadFormSchema>) {
     try {
-      setIsSubmitting(true)
-      const response = await fetch('/api/leads', {
-        method: 'POST',
+      setIsLoading(true)
+      const response = await fetch("/api/leads", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(values),
       })
 
-      if (!response.ok) throw new Error('Failed to create lead')
+      if (!response.ok) {
+        throw new Error("Failed to create lead")
+      }
 
       toast({
         title: "Success",
         description: "Lead created successfully",
       })
 
+      onOpenChange(false)
       form.reset()
-      onSuccess?.()
+      if (onLeadCreated) {
+        onLeadCreated()
+      }
+      router.refresh()
     } catch (error) {
       console.error(error)
       toast({
@@ -92,7 +72,7 @@ export function LeadDialog({ open, onOpenChange, onSuccess }: LeadDialogProps) {
         variant: "destructive",
       })
     } finally {
-      setIsSubmitting(false)
+      setIsLoading(false)
     }
   }
 
@@ -212,16 +192,11 @@ export function LeadDialog({ open, onOpenChange, onSuccess }: LeadDialogProps) {
               )}
             />
             <div className="flex justify-end space-x-2">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create Lead"}
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Creating..." : "Save"}
               </Button>
             </div>
           </form>

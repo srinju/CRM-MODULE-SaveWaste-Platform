@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db"
 export async function POST(req: Request) {
   try {
     const body = await req.json()
+    
     const lead = await prisma.lead.create({
       data: {
         businessName: body.businessName,
@@ -13,14 +14,15 @@ export async function POST(req: Request) {
         status: body.status,
         followUpDate: new Date(body.followUpDate),
         notes: body.notes,
-        userId: "placeholder-user-id", // TODO: Get from auth session
+        userId: "user_placeholder", // We'll implement auth later
       },
     })
+
     return NextResponse.json(lead)
   } catch (error) {
-    console.error(error)
+    console.error("Lead creation error:", error)
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Failed to create lead" },
       { status: 500 }
     )
   }
@@ -35,9 +37,9 @@ export async function GET() {
     })
     return NextResponse.json(leads)
   } catch (error) {
-    console.error(error)
+    console.error("Lead fetch error:", error)
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Failed to fetch leads" },
       { status: 500 }
     )
   }

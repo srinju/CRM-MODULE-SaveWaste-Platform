@@ -7,20 +7,21 @@ import { PlusCircle } from "lucide-react"
 import { LeadDialog } from "@/components/leads/lead-dialog"
 import { leadColumns } from "@/components/leads/columns"
 import { useToast } from "@/hooks/use-toast"
+import { Lead } from "@prisma/client"
 
 export default function LeadsPage() {
   const [open, setOpen] = useState(false)
-  const [leads, setLeads] = useState([])
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
 
-  useEffect(() => {
-    fetchLeads()
-  }, [])
-
-  async function fetchLeads() {
+  const fetchLeads = async () => {
     try {
-      const response = await fetch('/api/leads')
-      if (!response.ok) throw new Error('Failed to fetch leads')
+      setIsLoading(true)
+      const response = await fetch("/api/leads")
+      if (!response.ok) {
+        throw new Error("Failed to fetch leads")
+      }
       const data = await response.json()
       setLeads(data)
     } catch (error) {
@@ -30,8 +31,14 @@ export default function LeadsPage() {
         description: "Failed to fetch leads",
         variant: "destructive",
       })
+    } finally {
+      setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchLeads()
+  }, [])
 
   return (
     <div className="space-y-4">
@@ -42,14 +49,15 @@ export default function LeadsPage() {
           Add Lead
         </Button>
       </div>
-      <DataTable columns={leadColumns} data={leads} />
+      <DataTable 
+        columns={leadColumns} 
+        data={leads} 
+        isLoading={isLoading}
+      />
       <LeadDialog 
         open={open} 
         onOpenChange={setOpen} 
-        onSuccess={() => {
-          fetchLeads()
-          setOpen(false)
-        }}
+        onLeadCreated={fetchLeads}
       />
     </div>
   )
