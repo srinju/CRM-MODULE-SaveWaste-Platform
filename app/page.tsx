@@ -2,7 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Overview } from "@/components/overview"
 import { RecentCustomers } from "@/components/recent-customers"
 
-export default function Home() {
+export default async function Home() {
+
   return (
     <div className="flex-1 space-y-4">
       <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>

@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const customer = await prisma.customer.create({
       data: {
         ...body,
-        userId: "placeholder-user-id", // TODO: Get from auth session
+        userId: 1 , // TODO: Get from auth session
       },
     })
     return NextResponse.json(customer)

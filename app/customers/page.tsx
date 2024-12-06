@@ -38,7 +38,7 @@ export default function CustomersPage() {
           Add Customer
         </Button>
       </div>
-      <DataTable columns={customerColumns} data={[]} />
+      <DataTable columns={customerColumns} data={customers} />
       <CustomerDialog open={open} onOpenChange={setOpen} refreshCustomers={fetchCustomers} />
     </div>
   )
