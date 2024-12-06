@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  leads         Lead[]
+  customers     Customer[]
+  driverJobs    DriverJob[]
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  DRIVER
+}
+
+model Customer {
+  id              String    @id @default(cuid())
+  businessName    String
+  contactName     String
+  email           String
+  phone           String
+  address         String
+  creditScore     Float?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  assignedTo      User      @relation(fields: [userId], references: [id])
+  userId          String
+  quotes          Quote[]
+  agreements      Agreement[]
+  invoices        Invoice[]
+  serviceHistory  ServiceHistory[]
+}
+
+model Lead {
+  id          String    @id @default(cuid())
+  businessName String
+  contactName String
+  email       String
+  phone       String
+  status      LeadStatus
+  followUpDate DateTime
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  assignedTo  User      @relation(fields: [userId], references: [id])
+  userId      String
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+}
+
+model Quote {
+  id          String    @id @default(cuid())
+  quoteNumber String    @unique
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  customerId  String
+  items       QuoteItem[]
+  total       Float
+  status      QuoteStatus
+  validUntil  DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model QuoteItem {
+  id          String    @id @default(cuid())
+  quote       Quote     @relation(fields: [quoteId], references: [id])
+  quoteId     String
+  description String
+  quantity    Int
+  unitPrice   Float
+  total       Float
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+model Agreement {
+  id          String    @id @default(cuid())
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  customerId  String
+  content     String
+  signature   String
+  startDate   DateTime
+  endDate     DateTime?
+  status      AgreementStatus
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum AgreementStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+model Invoice {
+  id          String    @id @default(cuid())
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  customerId  String
+  items       InvoiceItem[]
+  total       Float
+  gst         Float
+  dueDate     DateTime
+  status      InvoiceStatus
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model InvoiceItem {
+  id          String    @id @default(cuid())
+  invoice     Invoice   @relation(fields: [invoiceId], references: [id])
+  invoiceId   String
+  description String
+  quantity    Int
+  unitPrice   Float
+  total       Float
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model ServiceHistory {
+  id          String    @id @default(cuid())
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  customerId  String
+  serviceType String
+  wasteType   String
+  quantity    Float
+  date        DateTime
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model DriverJob {
+  id          String    @id @default(cuid())
+  driver      User      @relation(fields: [driverId], references: [id])
+  driverId    String
+  status      JobStatus
+  startTime   DateTime
+  endTime     DateTime?
+  location    String
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum JobStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+  CANCELLED
+}
+
+model Expense {
+  id          String    @id @default(cuid())
+  category    ExpenseCategory
+  amount      Float
+  description String
+  date        DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum ExpenseCategory {
+  TRUCK_REPAIR
+  TRUCK_MAINTENANCE
+  FUEL
+  PARTS
+  REGISTRATION
+  INSURANCE
+  MARKETING
+  OTHER
+}
