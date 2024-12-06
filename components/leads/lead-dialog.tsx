@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -28,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
   businessName: z.string().min(2).max(100),
@@ -42,9 +44,13 @@ const formSchema = z.object({
 interface LeadDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => void
 }
 
-export function LeadDialog({ open, onOpenChange }: LeadDialogProps) {
+export function LeadDialog({ open, onOpenChange, onSuccess }: LeadDialogProps) {
+  const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,11 +66,33 @@ export function LeadDialog({ open, onOpenChange }: LeadDialogProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      // TODO: Implement lead creation
-      console.log(values)
-      onOpenChange(false)
+      setIsSubmitting(true)
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      })
+
+      if (!response.ok) throw new Error('Failed to create lead')
+
+      toast({
+        title: "Success",
+        description: "Lead created successfully",
+      })
+
+      form.reset()
+      onSuccess?.()
     } catch (error) {
       console.error(error)
+      toast({
+        title: "Error",
+        description: "Failed to create lead",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -170,11 +198,31 @@ export function LeadDialog({ open, onOpenChange }: LeadDialogProps) {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
-              <Button type="submit">Save</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Creating..." : "Create Lead"}
+              </Button>
             </div>
           </form>
         </Form>

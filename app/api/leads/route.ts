@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/db"
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
     const lead = await prisma.lead.create({
       data: {
-        ...body,
+        businessName: body.businessName,
+        contactName: body.contactName,
+        email: body.email,
+        phone: body.phone,
+        status: body.status,
+        followUpDate: new Date(body.followUpDate),
+        notes: body.notes,
         userId: "placeholder-user-id", // TODO: Get from auth session
       },
     })

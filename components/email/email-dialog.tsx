@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
   to: z.string().email(),
@@ -43,6 +44,9 @@ interface EmailDialogProps {
 }
 
 export function EmailDialog({ open, onOpenChange }: EmailDialogProps) {
+  const { toast } = useToast()
+  const [isSending, setIsSending] = useState(false)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,11 +59,35 @@ export function EmailDialog({ open, onOpenChange }: EmailDialogProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      // TODO: Implement email sending
-      console.log(values)
+      setIsSending(true)
+      const response = await fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send email')
+      }
+
+      toast({
+        title: "Email Sent",
+        description: "Your email has been sent successfully.",
+      })
+
       onOpenChange(false)
+      form.reset()
     } catch (error) {
       console.error(error)
+      toast({
+        title: "Error",
+        description: "Failed to send email. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSending(false)
     }
   }
 
@@ -136,10 +164,17 @@ export function EmailDialog({ open, onOpenChange }: EmailDialogProps) {
               )}
             />
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+                disabled={isSending}
+              >
                 Cancel
               </Button>
-              <Button type="submit">Send</Button>
+              <Button type="submit" disabled={isSending}>
+                {isSending ? "Sending..." : "Send"}
+              </Button>
             </div>
           </form>
         </Form>
