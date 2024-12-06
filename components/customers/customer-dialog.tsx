@@ -23,11 +23,11 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
 const formSchema = z.object({
-  businessName: z.string().min(2).max(100),
-  contactName: z.string().min(2).max(100),
+  businessName: z.string().min(2),
+  contactName: z.string().min(2),
   email: z.string().email(),
   phone: z.string().min(10),
-  address: z.string().min(5),
+  address: z.string().min(2),
 })
 
 interface CustomerDialogProps {
