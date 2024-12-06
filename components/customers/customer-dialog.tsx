@@ -33,9 +33,12 @@ const formSchema = z.object({
 interface CustomerDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  refreshCustomers : () => void
 }
 
-export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
+export function CustomerDialog({ open, onOpenChange,refreshCustomers }: CustomerDialogProps) {
+  const [isSubmitting , setIsSubmitting] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -48,12 +51,25 @@ export function CustomerDialog({ open, onOpenChange }: CustomerDialogProps) {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
     try {
-      // TODO: Implement customer creation
-      console.log(values)
-      onOpenChange(false)
+      const response = await fetch("api/customers",{
+        method : 'POST',
+        headers : {
+          "Content-Type" : "application/json",
+        },
+        body : JSON.stringify(values),
+      });
+      if(!response.ok){
+        throw new Error("failed to create the customer!!");
+      }
+      form.reset()
+      onOpenChange(false);
+      refreshCustomers();
     } catch (error) {
-      console.error(error)
+      console.error("an error occured while creating the user!!" , error);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
