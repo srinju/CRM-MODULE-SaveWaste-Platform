@@ -18,6 +18,8 @@ model User {
   leads         Lead[]
   customers     Customer[]
   driverJobs    DriverJob[]
+
+  Employee Employee[]
 }
 
 enum UserRole {
@@ -42,6 +44,8 @@ model Customer {
   agreements      Agreement[]
   invoices        Invoice[]
   serviceHistory  ServiceHistory[]
+
+  CreditCheck CreditCheck[]
 }
 
 model Lead {
@@ -204,4 +208,180 @@ enum ExpenseCategory {
   INSURANCE
   MARKETING
   OTHER
+}
+
+model EmailTemplate {
+  id          String    @id @default(cuid())
+  name        String
+  subject     String
+  content     String
+  type        EmailType
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  emails      Email[]
+}
+
+model Email {
+  id          String    @id @default(cuid())
+  template    EmailTemplate? @relation(fields: [templateId], references: [id])
+  templateId  String?
+  subject     String
+  content     String
+  to          String
+  from        String
+  status      EmailStatus
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum EmailType {
+  MARKETING
+  INVOICE
+  QUOTE
+  AGREEMENT
+  ALERT
+  GENERAL
+}
+
+enum EmailStatus {
+  DRAFT
+  SENT
+  FAILED
+}
+
+model MarketingCampaign {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  startDate   DateTime
+  endDate     DateTime?
+  status      CampaignStatus
+  template    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model CreditCheck {
+  id          String    @id @default(cuid())
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  customerId  String
+  score       Float?
+  provider    String
+  status      CreditStatus
+  checkedAt   DateTime
+  validUntil  DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum CreditStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PREPAYMENT_REQUIRED
+}
+
+model Employee {
+  id          String    @id @default(cuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String    @unique
+  employeeId  String    @unique
+  department  String
+  position    String
+  startDate   DateTime
+  endDate     DateTime?
+  salary      Float
+  timesheets  Timesheet[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Timesheet {
+  id          String    @id @default(cuid())
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  employeeId  String
+  date        DateTime
+  hoursWorked Float
+  overtime    Float
+  notes       String?
+  status      TimesheetStatus
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum TimesheetStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Alert {
+  id          String    @id @default(cuid())
+  type        AlertType
+  message     String
+  priority    AlertPriority
+  status      AlertStatus
+  sentTo      String[]
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum AlertType {
+  MISSED_COLLECTION
+  WEATHER_DELAY
+  PUBLIC_HOLIDAY
+  SYSTEM_MAINTENANCE
+  PAYMENT_DUE
+  GENERAL
+}
+
+enum AlertPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AlertStatus {
+  PENDING
+  SENT
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+model CallLog {
+  id          String    @id @default(cuid())
+  callerId    String?
+  callerName  String?
+  phoneNumber String
+  duration    Int
+  type        CallType
+  status      CallStatus
+  notes       String?
+  recordingUrl String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum CallType {
+  INBOUND
+  OUTBOUND
+  AUTOMATED
+}
+
+enum CallStatus {
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+  TRANSFERRED
+  VOICEMAIL
 }
