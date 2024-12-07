@@ -19,6 +19,7 @@ import {
   BarChart,
   PhoneCall
 } from 'lucide-react'
+import { signOut } from 'next-auth/react'
 
 const routes = [
   {
@@ -102,6 +103,12 @@ export default function Sidebar() {
         <Link href="/" className="flex items-center pl-3 mb-14">
           <h1 className="text-2xl font-bold">Save Waste CRM</h1>
         </Link>
+        <div className='items-center justify-center'>
+          <button
+            onClick={() => {
+              signOut({ callbackUrl: '/' })}}
+          >Logout</button>
+        </div>
         <div className="space-y-1">
           {routes.map((route) => (
             <Link
