@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const customer = await prisma.customer.create({
       data: {
         ...body,
-        userId: session.user.id , // TODO: Get from auth session
+        userId: session.user.id , 
       },
     })
     return NextResponse.json(customer)
