@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
 import { PlusCircle } from "lucide-react"
@@ -9,10 +9,27 @@ import { EmailDialog } from "@/components/email/email-dialog"
 import { EmailTemplateDialog } from "@/components/email/email-template-dialog"
 import { emailColumns } from "@/components/email/columns"
 import { templateColumns } from "@/components/email/template-columns"
+import { date } from "zod"
 
 export default function EmailPage() {
   const [emailOpen, setEmailOpen] = useState(false)
   const [templateOpen, setTemplateOpen] = useState(false)
+  const [emails , setEmails] = useState();
+
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await fetch('/api/email');
+        if(!response.ok){
+          throw new Error("an error occured while fetching the emails!!");
+        }
+        const body = await response.json();
+        setEmails(body);
+      } catch(error){
+        console.error("an error occured while fethching the emails from the database"  , error)
+      }
+    }
+  })
 
   return (
     <div className="space-y-4">

@@ -21,7 +21,7 @@ export interface EmailData {
 }
 
 export async function sendEmail(data: EmailData) {
-  const { to, subject, content, from = process.env.SMTP_FROM || "Srinjoy <8178c5001@smtp-brevo.com" } = data;
+  const { to, subject, content, from = process.env.SMTP_FROM || "Srinjoy <dassrinjoy333@gmail.com" } = data;
 
   try {
     const info = await transporter.sendMail({
