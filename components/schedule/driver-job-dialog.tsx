@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -45,7 +45,13 @@ interface DriverJobDialogProps {
   selectedDate?: Date
 }
 
+type Driver = {
+  id : string,
+  name : string,
+}
+
 export function DriverJobDialog({ open, onOpenChange, selectedDate }: DriverJobDialogProps) {
+  const [drivers , setDrivers] = useState<Driver[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -83,6 +89,23 @@ export function DriverJobDialog({ open, onOpenChange, selectedDate }: DriverJobD
     }
   }
 
+  useEffect(() => {
+    const fetchedDrivers = async () => {
+      try {
+        const response = await fetch('/api/get-drivers');
+        if(!response.ok){
+          throw new Error("Failed to get the jobs ");
+        }
+        const body = await response.json();
+        console.log("the drivers data fetched are : ", body.drivers);
+        setDrivers(body.drivers);
+      }catch(error){
+        console.error("an error occured while fetching the drivers data ", error);
+      }
+    }
+    fetchedDrivers();
+  },[]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -107,8 +130,17 @@ export function DriverJobDialog({ open, onOpenChange, selectedDate }: DriverJobD
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="1">John Doe</SelectItem>
-                      <SelectItem value="2">Jane Smith</SelectItem>
+                      {drivers.length > 0 ? (
+                        drivers.map((driver) => (
+                          <SelectItem key={driver.id} value={driver.id}>
+                            {driver.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem disabled value="">
+                          No drivers available
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
