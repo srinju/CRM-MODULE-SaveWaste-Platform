@@ -12,6 +12,7 @@ model User {
   name          String?
   email         String    @unique
   password      String
+  role          UserRole  @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   leads         Lead[]
@@ -21,6 +22,11 @@ model User {
   Employee Employee[]
 }
 
+enum UserRole {
+  ADMIN
+  USER
+  DRIVER
+}
 
 
 model Customer {

@@ -5,7 +5,9 @@ const prisma = new PrismaClient()
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
+    console.log("in the post request route of the schedule driver jobs");
+    const body = await req.json();
+    console.log("the body that is coming ftom the frontend for the driver job is : " , body);
     const job = await prisma.driverJob.create({
       data: body,
     })
