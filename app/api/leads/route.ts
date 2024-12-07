@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if(!session){
+    return null;
+  }
   try {
     const body = await req.json()
-    
     const lead = await prisma.lead.create({
       data: {
         businessName: body.businessName,
@@ -14,7 +19,7 @@ export async function POST(req: Request) {
         status: body.status,
         followUpDate: new Date(body.followUpDate),
         notes: body.notes,
-        userId: "user_placeholder", // We'll implement auth later
+        userId: session.user.id,
       },
     })
 
