@@ -7,7 +7,8 @@ const Signup = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        password: ''
+        password: '',
+        role : 'USER' //default role
       });
     const router = useRouter();
     const handleSubmit = async(e : React.FormEvent<HTMLFormElement>) => {
@@ -30,7 +31,7 @@ const Signup = () => {
             console.error("an error occured" , err);
         }
     }
-    const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e : React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
             ...formData,
             [e.target.name] : e.target.value
@@ -78,6 +79,21 @@ const Signup = () => {
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-950"
             required
           />
+        </div>
+
+        <div className="mb-6">
+            <label htmlFor="role" className="block text-sm font-medium text-white">Role</label>
+            <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-950"
+            >
+                <option value="ADMIN">ADMIN</option>
+                <option value="USER">USER</option>
+                <option value="DRIVER">DRIVER</option>
+            </select>
         </div>
 
         <button

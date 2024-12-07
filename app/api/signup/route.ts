@@ -6,7 +6,8 @@ import bcryptjs from "bcryptjs";
 const signupsSchema = z.object({
     name : z.string(),
     email : z.string().email().nonempty("this email field is required!!"),
-    password : z.string().min(6,"password shold be minimum of 6 charecters").nonempty("password field should not be empty")
+    password : z.string().min(6,"password shold be minimum of 6 charecters").nonempty("password field should not be empty"),
+    role : z.enum(["ADMIN" , "USER" , "DRIVER"])
 });
 
 export async function POST(req : Request){
@@ -22,6 +23,8 @@ export async function POST(req : Request){
         if(exisitingUser){
             return NextResponse.json({
                 message : "this user already exisits!"
+            },{
+                status : 400
             });
         }
         const hashedPassword = await bcryptjs.hash(validatedcreds.password,10);
@@ -30,7 +33,8 @@ export async function POST(req : Request){
             data : {
                 name : validatedcreds.name,
                 email : validatedcreds.email,
-                password : hashedPassword
+                password : hashedPassword,
+                role : validatedcreds.role
             }
         });
         if(!newUser){
