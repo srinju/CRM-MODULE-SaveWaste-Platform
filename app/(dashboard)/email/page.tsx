@@ -9,7 +9,6 @@ import { EmailDialog } from "@/components/email/email-dialog"
 import { EmailTemplateDialog } from "@/components/email/email-template-dialog"
 import { emailColumns } from "@/components/email/columns"
 import { templateColumns } from "@/components/email/template-columns"
-import { date } from "zod"
 
 export default function EmailPage() {
   const [emailOpen, setEmailOpen] = useState(false)
@@ -29,7 +28,8 @@ export default function EmailPage() {
         console.error("an error occured while fethching the emails from the database"  , error)
       }
     }
-  })
+    fetchEmails();
+  },[]);
 
   return (
     <div className="space-y-4">
