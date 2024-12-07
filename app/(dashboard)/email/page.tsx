@@ -9,11 +9,26 @@ import { EmailDialog } from "@/components/email/email-dialog"
 import { EmailTemplateDialog } from "@/components/email/email-template-dialog"
 import { emailColumns } from "@/components/email/columns"
 import { templateColumns } from "@/components/email/template-columns"
+import { EmailStatus } from "@prisma/client"
+
+type Email = {
+  content : string,
+  createdAt : Date,
+  from : string,
+  id : string,
+  sentAt : Date,
+  status : EmailStatus,
+  subject : string,
+  template : string | null ,
+  templateId : string  | null,
+  to : string,
+  updatedAt : Date
+}
 
 export default function EmailPage() {
   const [emailOpen, setEmailOpen] = useState(false)
   const [templateOpen, setTemplateOpen] = useState(false)
-  const [emails , setEmails] = useState();
+  const [emails , setEmails] = useState<Email[]>([]);
 
   useEffect(() => {
     const fetchEmails = async () => {
@@ -22,8 +37,9 @@ export default function EmailPage() {
         if(!response.ok){
           throw new Error("an error occured while fetching the emails!!");
         }
-        const body = await response.json();
-        setEmails(body);
+        const data = await response.json();
+        console.log("data received from fethcing the data : " , data);
+        setEmails(data);
       } catch(error){
         console.error("an error occured while fethching the emails from the database"  , error)
       }
@@ -54,7 +70,7 @@ export default function EmailPage() {
           <TabsTrigger value="campaigns">Marketing Campaigns</TabsTrigger>
         </TabsList>
         <TabsContent value="emails">
-          <DataTable columns={emailColumns} data={[]} />
+          <DataTable columns={emailColumns} data={emails} />
         </TabsContent>
         <TabsContent value="templates">
           <DataTable columns={templateColumns} data={[]} />
