@@ -2,13 +2,15 @@ import nodemailer from 'nodemailer';
 
 // Create reusable transporter object using SMTP transport
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
+  host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
   port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
+  secure: false,
   auth: {
-    user: process.env.SMTP_USER ,
-    pass: process.env.SMTP_PASS ,
+    user: process.env.SMTP_USER || "8178c5001@smtp-brevo.com" ,
+    pass: process.env.SMTP_PASS || "JfYKPZGm4jxE7ODI" ,
   },
+  logger : true,
+  debug : true,
 });
 
 export interface EmailData {
@@ -19,7 +21,7 @@ export interface EmailData {
 }
 
 export async function sendEmail(data: EmailData) {
-  const { to, subject, content, from = process.env.SMTP_FROM } = data;
+  const { to, subject, content, from = process.env.SMTP_FROM || "Srinjoy <8178c5001@smtp-brevo.com" } = data;
 
   try {
     const info = await transporter.sendMail({
