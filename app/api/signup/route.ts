@@ -11,7 +11,7 @@ const signupsSchema = z.object({
 
 export async function POST(req : Request){
     try {
-        const body = req.json();
+        const body = await req.json();
         const validatedcreds = signupsSchema.parse(body);
         //check for exisiting users >
         const exisitingUser = await prisma.user.findUnique({
