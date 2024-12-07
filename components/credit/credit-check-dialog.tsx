@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -39,7 +39,17 @@ interface CreditCheckDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
+type Customer = {
+  id: string;
+  contactName: string;
+  businessName?: string; // Optional
+  email?: string; // Optional
+  phone?: string; // Optional
+  address?: string; // Optional
+};
+
 export function CreditCheckDialog({ open, onOpenChange }: CreditCheckDialogProps) {
+  const[customers , setCusstomers] = useState<Customer[]>([])
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,6 +57,22 @@ export function CreditCheckDialog({ open, onOpenChange }: CreditCheckDialogProps
       provider: "EQUIFAX",
     },
   })
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await fetch('/api/customers');
+        if(!response.ok){
+          throw new Error("an error occured while fetching customers");
+        }
+        const body = await response.json();
+        setCusstomers(body);
+      } catch(error){
+        console.error("an error occured while getting the customers" , error);
+      }
+    }
+    fetchCustomers();
+  },[]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -82,8 +108,17 @@ export function CreditCheckDialog({ open, onOpenChange }: CreditCheckDialogProps
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="1">Customer 1</SelectItem>
-                      <SelectItem value="2">Customer 2</SelectItem>
+                      {customers.length > 0 ? (
+                        customers.map((customer) => (
+                          <SelectItem key={customer.id} value={customer.id}>
+                            {customer.contactName}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem disabled value="">
+                          No customers available
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />

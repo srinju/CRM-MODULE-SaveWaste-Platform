@@ -21,7 +21,7 @@ export async function POST(req: Request) {
         to: body.to,
         subject: body.subject,
         content: body.content,
-        from: process.env.SMTP_FROM || 'noreply@example.com',
+        from: process.env.SMTP_FROM || 'srinjoydas1104@gmail.com',
         status: emailResult.success ? 'SENT' : 'FAILED',
         sentAt: emailResult.success ? new Date() : null,
         templateId: body.templateId,
