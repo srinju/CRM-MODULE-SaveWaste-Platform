@@ -137,7 +137,7 @@ export function DriverJobDialog({ open, onOpenChange, selectedDate }: DriverJobD
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem disabled value="">
+                        <SelectItem disabled value="no-drivers">
                           No drivers available
                         </SelectItem>
                       )}

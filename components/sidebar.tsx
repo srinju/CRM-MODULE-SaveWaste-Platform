@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from './ui/button'
+import { signOut } from 'next-auth/react'
 
 const routes = [
   {
@@ -133,6 +134,12 @@ export default function Sidebar() {
             {isCollapsed ? "CRM" : "SaveWaste CRM"}
           </h1>
         </Link>
+
+        <div>
+          <button onClick={() => {
+            signOut({ callbackUrl: '/' });
+          }}>Logout</button>
+        </div>
 
         <div className="space-y-1">
           {routes.map((route) => (

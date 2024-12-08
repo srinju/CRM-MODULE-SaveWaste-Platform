@@ -156,7 +156,7 @@ export function QuoteDialog({ open, onOpenChange }: QuoteDialogProps) {
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem disabled value="">
+                        <SelectItem disabled value="no-customers">
                           No customers available
                         </SelectItem>
                       )}
