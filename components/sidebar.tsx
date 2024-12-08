@@ -17,9 +17,12 @@ import {
   AlertCircle,
   DollarSign,
   BarChart,
-  PhoneCall
+  PhoneCall,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react'
-import { signOut } from 'next-auth/react'
+import { useState } from 'react'
+import { Button } from './ui/button'
 
 const routes = [
   {
@@ -96,32 +99,64 @@ const routes = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   return (
-    <div className="space-y-4 py-4 flex flex-col h-full bg-gray-100 dark:bg-gray-900 w-64">
+    <div 
+      className={cn(
+        "relative flex flex-col h-full bg-gray-100 dark:bg-gray-900 transition-all duration-300",
+        isCollapsed ? "w-20" : "w-64"
+      )}
+    >
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute -right-4 top-6 h-8 w-8 rounded-full border shadow-md"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        {isCollapsed ? (
+          <PanelLeftOpen className="h-4 w-4" />
+        ) : (
+          <PanelLeftClose className="h-4 w-4" />
+        )}
+      </Button>
+
       <div className="px-3 py-2 flex-1">
-        <Link href="/" className="flex items-center pl-3 mb-14">
-          <h1 className="text-2xl font-bold">Save Waste CRM</h1>
+        <Link href="/" className={cn(
+          "flex items-center pl-3 mb-14 transition-all duration-300",
+          isCollapsed ? "justify-center pl-0" : "justify-start"
+        )}>
+          <h1 className={cn(
+            "font-bold transition-all duration-300",
+            isCollapsed ? "text-xl" : "text-2xl"
+          )}>
+            {isCollapsed ? "CRM" : "SaveWaste CRM"}
+          </h1>
         </Link>
-        <div className='items-center justify-center'>
-          <button
-            onClick={() => {
-              signOut({ callbackUrl: '/' })}}
-          >Logout</button>
-        </div>
+
         <div className="space-y-1">
           {routes.map((route) => (
             <Link
               key={route.href}
               href={route.href}
               className={cn(
-                "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",
-                pathname === route.href ? "text-primary bg-primary/10" : "text-muted-foreground"
+                "flex p-3 w-full rounded-lg transition-all duration-300",
+                pathname === route.href 
+                  ? "text-primary bg-primary/10" 
+                  : "text-muted-foreground hover:text-primary hover:bg-primary/10",
+                isCollapsed ? "justify-center" : "justify-start"
               )}
+              title={isCollapsed ? route.label : undefined}
             >
-              <div className="flex items-center flex-1">
-                <route.icon className="h-5 w-5 mr-3" />
-                {route.label}
+              <div className={cn(
+                "flex items-center",
+                isCollapsed ? "justify-center" : "flex-1"
+              )}>
+                <route.icon className={cn(
+                  "h-5 w-5",
+                  !isCollapsed && "mr-3"
+                )} />
+                {!isCollapsed && route.label}
               </div>
             </Link>
           ))}
