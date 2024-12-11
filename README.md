@@ -10,4 +10,4 @@
 2. xero integration should be done after deploying the application >(video link : https://www.youtube.com/watch?v=bNyIK2PLjpU)
     1. register app under (developer.xero.com)
     2. setup redirect url for 3rd party integration
-    3. configure xero in this application
+    3. configure xero in this application.
